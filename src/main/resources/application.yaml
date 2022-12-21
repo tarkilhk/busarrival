@@ -33,4 +33,4 @@ springdoc:
 server:
   use-forward-headers: true
   forward-headers-strategy: framework
-  port: 8779
+  port: 8778
