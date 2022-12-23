@@ -27,14 +27,15 @@ data class BusStop(
     override fun toString(): String = "[$busStopId] $busStopName - busStopCode = $busStopCode - serviceNo = $serviceNo"
 
     override fun hashCode(): Int {
-        return (Objects.hash(busStopName, busStopCode))
+        return (Objects.hash(busStopName, busStopCode, serviceNo))
     }
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) return false
         val that = other as BusStop
         return this.busStopName == that.busStopName &&
-                this.busStopCode == that.busStopCode
+                this.busStopCode == that.busStopCode &&
+                this.serviceNo == that.serviceNo
     }
 
     fun toDAO(): BusStopDAO {
