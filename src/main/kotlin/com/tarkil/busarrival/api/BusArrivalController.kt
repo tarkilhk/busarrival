@@ -31,14 +31,17 @@ class BusArrivalController(val busArrivalService: BusArrivalService) {
         }
     }
 
-    @GetMapping("bus-route-and-bus-stop-code")
+    @GetMapping("/bus-route-and-bus-stop-code")
     fun getBusArrivalForBusRouteAndBusStopCode(
-        @RequestParam(value = "busRoute") busRoute: String,
+        @RequestParam(value = "serviceNo") serviceNo: String,
         @RequestParam(value = "busStopCode") busStopCode: String
     ): ResponseEntity<BusArrival> {
         try {
             val busArrival =
-                busArrivalService.getBusArrivalForBusRouteAndBusStop(busRoute = busRoute, busStopCode = busStopCode)
+                busArrivalService.getBusArrivalForServiceNoAndBusStopCode(
+                    serviceNo = serviceNo,
+                    busStopCode = busStopCode
+                )
             return ResponseEntity.ok(busArrival)
         } catch (e: NotFound) {
             return ResponseEntity(BusArrival(message = "" + e.message, isError = true), HttpStatus.NOT_FOUND)

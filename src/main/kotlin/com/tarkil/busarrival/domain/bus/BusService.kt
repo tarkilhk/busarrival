@@ -16,7 +16,7 @@ class BusService(private val busStopsRepository: BusStopsRepository) {
 
             val toBeUpdatedBusStopDAO: BusStopDAO = busStopsRepository.getByName(newBusStop.busStopName)
 
-            toBeUpdatedBusStopDAO.changeBusStopCode(newBusStop.busStopCode)
+            toBeUpdatedBusStopDAO.updateMembers(newBusStop)
             busStopsRepository.save(toBeUpdatedBusStopDAO)
             logger.info("Successfully updated ${newBusStop.busStopName} [stopId ${newBusStop.busStopId}] in DB")
             return toBeUpdatedBusStopDAO.busStopId

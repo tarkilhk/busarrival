@@ -1,32 +1,60 @@
 package com.tarkil.busarrival.domain.user
 
 import com.tarkil.busarrival.domain.bus.BusStop
+import com.tarkil.busarrival.infrastructure.datapersistence.bus.BusStopDAO
 import com.tarkil.busarrival.infrastructure.datapersistence.bus.BusStopsRepository
 import com.tarkil.busarrival.infrastructure.datapersistence.users.UserDAO
 import com.tarkil.busarrival.infrastructure.datapersistence.users.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.webjars.NotFoundException
 
 @Service
 class UserService(val userRepository: UserRepository, val busStopsRepository: BusStopsRepository) {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun setFavouriteStopsFor(userId: Long, stopIds: MutableList<Long>) {
+        logger.info("Want to set ${stopIds.size} favourite stops for user id $userId")
         if (userRepository.existsById(userId)) {
             val userDAO: UserDAO = this.getUserDAOById(userId)!!
 
-            userDAO.favouriteBusStopsDAOS.clear()
+            val listOfNonExistingBusStopIds: MutableList<Long> = mutableListOf<Long>()
+            val newFavouriteListOfBusStopDAOs: MutableList<BusStopDAO> = mutableListOf<BusStopDAO>()
+
             for (stopId: Long in stopIds) {
                 if (busStopsRepository.existsById(stopId)) {
-                    userDAO.favouriteBusStopsDAOS.add(busStopsRepository.findByIdOrNull(stopId)!!)
+                    newFavouriteListOfBusStopDAOs.add(busStopsRepository.findByIdOrNull(stopId)!!)
                 } else {
-                    // invalid busStopGroupId
+                    listOfNonExistingBusStopIds.add(stopId)
+                    logger.error("Bus Stop with id $stopId does not exist")
                 }
             }
-            userRepository.save(userDAO)
+
+            if (listOfNonExistingBusStopIds.isEmpty()) {
+                userDAO.favouriteBusStopsDAOS.clear()
+                userDAO.favouriteBusStopsDAOS.addAll(newFavouriteListOfBusStopDAOs)
+                try {
+                    userRepository.save(userDAO)
+                    print(20 / 0)
+                } catch (e: Exception) {
+                    logger.error("Cannot save favourites in DB for $userDAO")
+                    throw Exception("Cannot save favourites in DB for $userDAO : ${e.message}")
+                }
+            } else {
+                // There are unknown BusStopIds
+                throw NotFoundException(
+                    "Didn't change favourite stops for userId $userId, as some busStopIds were not known [${
+                        listOfNonExistingBusStopIds.joinToString(
+                            separator = ", "
+                        )
+                    }]"
+                )
+            }
         } else {
-            // invalid user name
+            // UserId does not exist
+            logger.error("User with id $userId does not exist")
+            throw NotFoundException("User with id $userId does not exist")
         }
     }
 
@@ -38,20 +66,17 @@ class UserService(val userRepository: UserRepository, val busStopsRepository: Bu
     }
 
     fun getFavouriteStops(userId: Long): MutableList<BusStop> {
+        logger.info("Want to retrieve favourite stops for userId $userId")
         val myUser: User? = this.getUserById(userId)
         if (myUser == null) {
-            return mutableListOf(BusStop(busStopId = -1, busStopName = "Unknown user", busStopCode = ""))
+            logger.error("User with id $userId does not exist")
+            return mutableListOf<BusStop>()
         } else {
-//            val busStopGroupList : MutableList<BusStopGroup> = mutableListOf()
-//            for (busStopGroupDao in myUser.favouriteBusStopGroupsDaos) {
-//                busStopGroupList.add(BusStopGroup(busStopGroupsDao = busStopGroupDao))
-//            }
-//            return(busStopGroupList)
             return myUser.favouriteBusStops
         }
     }
 
-    private fun getUserById(userId: Long): User? {
+    fun getUserById(userId: Long): User? {
         if (userRepository.existsById(userId)) {
             return (User(userDAO = userRepository.findById(userId).get()))
         }

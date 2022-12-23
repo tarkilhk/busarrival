@@ -26,7 +26,7 @@ class UserDAO(
 
     override fun toString(): String {
         return String.format(
-            "User id=$userId : $name"
+            "[$userId] $name - {${favouriteBusStopsDAOS.joinToString(separator = ", ")}}"
         )
     }
 

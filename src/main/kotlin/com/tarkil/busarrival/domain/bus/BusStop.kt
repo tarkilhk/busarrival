@@ -6,21 +6,25 @@ import java.util.*
 data class BusStop(
     var busStopId: Long = -1,
     var busStopName: String = "",
-    var busStopCode: String = ""
+    var busStopCode: String = "",
+    var serviceNo: String = ""
 ) {
 
     constructor(busStopDAO: BusStopDAO) : this(
         busStopId = busStopDAO.busStopId,
-        busStopName = busStopDAO.name, busStopCode = busStopDAO.busStopCode
+        busStopName = busStopDAO.name,
+        busStopCode = busStopDAO.busStopCode,
+        serviceNo = busStopDAO.serviceNo
     )
 
-    constructor(busStopCode: String, busStopName: String) : this() {
+    constructor(busStopCode: String, busStopName: String, serviceNo: String) : this() {
         this.busStopId = -1
         this.busStopName = busStopName
         this.busStopCode = busStopCode
+        this.serviceNo = serviceNo
     }
 
-    override fun toString(): String = "Bus Stop Name $busStopName - Bus Stop Code $busStopCode"
+    override fun toString(): String = "[$busStopId] $busStopName - busStopCode = $busStopCode - serviceNo = $serviceNo"
 
     override fun hashCode(): Int {
         return (Objects.hash(busStopName, busStopCode))
@@ -38,6 +42,7 @@ data class BusStop(
             busStopId = this.busStopId,
             name = this.busStopName,
             busStopCode = this.busStopCode,
+            serviceNo = this.serviceNo,
             userDAOs = mutableListOf()
         )
     }

@@ -14,11 +14,18 @@ class BusController(val busService: BusService) {
     @PostMapping("/bus-stops")
     fun newBusStop(
         @RequestParam(value = "busStopCode") busStopCode: String,
-        @RequestParam(value = "name") name: String
+        @RequestParam(value = "name") name: String,
+        @RequestParam(value = "serviceNo") serviceNo: String
     ): ResponseEntity<String> {
         var response: ResponseEntity<String>
         try {
-            val newBusStopId = busService.upsertNewBusStop(BusStop(busStopCode = busStopCode, busStopName = name))
+            val newBusStopId = busService.upsertNewBusStop(
+                BusStop(
+                    busStopCode = busStopCode,
+                    busStopName = name,
+                    serviceNo = serviceNo
+                )
+            )
             response = ResponseEntity("Done : id $newBusStopId", HttpStatus.OK)
         } catch (e: NotFound) {
             response = ResponseEntity(e.message, HttpStatus.NOT_FOUND)

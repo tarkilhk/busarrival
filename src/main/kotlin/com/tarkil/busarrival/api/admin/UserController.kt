@@ -7,6 +7,8 @@ import feign.FeignException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.webjars.NotFoundException
+import javax.websocket.server.PathParam
 
 
 @RestController
@@ -14,8 +16,19 @@ import org.springframework.web.bind.annotation.*
 class UserController(val userService: UserService) {
 
     @GetMapping("")
-    fun getUsers(): MutableList<User> {
-        return userService.getAll()
+    fun getUsers(): ResponseEntity<MutableList<User>> {
+        return ResponseEntity(userService.getAll(), HttpStatus.OK)
+    }
+
+    @GetMapping("/{userId}")
+    fun getUser(@PathParam("userId") userId: Long): ResponseEntity<Any> {
+        val user: User?
+        user = userService.getUserById(userId)
+        if (user == null) {
+            return ResponseEntity("User with id ${userId.toString()} does not exist", HttpStatus.NOT_FOUND)
+        } else {
+            return ResponseEntity(user, HttpStatus.OK)
+        }
     }
 
     @PostMapping("")
@@ -34,16 +47,29 @@ class UserController(val userService: UserService) {
     }
 
     @GetMapping("favourite-stops")
-    fun getFavouriteStopsForUser(@RequestParam(value = "userId") userId: Long): MutableList<BusStop> {
-        return userService.getFavouriteStops(userId = userId)
+    fun getFavouriteStopsForUser(@RequestParam(value = "userId") userId: Long): ResponseEntity<Any> {
+        val busStops: MutableList<BusStop>
+        val user: User? = userService.getUserById(userId)
+        if (user == null) {
+            return ResponseEntity("User with id $userId does not exist", HttpStatus.NOT_FOUND)
+        } else {
+            return (ResponseEntity(user.favouriteBusStops, HttpStatus.OK))
+        }
     }
 
     @PostMapping("favourite-stops")
     fun setFavouriteStopsForUser(
         @RequestParam(value = "userId") userId: Long,
         @RequestParam(value = "stopIds") stopIds: MutableList<Long>
-    ): String {
-        userService.setFavouriteStopsFor(userId, stopIds)
-        return ("Done")
+    ): ResponseEntity<String> {
+        var message: String = ""
+        try {
+            userService.setFavouriteStopsFor(userId, stopIds)
+            return ResponseEntity("Successfully set ${stopIds.size} bus stops as favourites", HttpStatus.OK)
+        } catch (e: NotFoundException) {
+            return ResponseEntity("${e.message}", HttpStatus.NOT_FOUND)
+        } catch (e: Exception) {
+            return ResponseEntity("Cannot set favourite stops : ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 }
