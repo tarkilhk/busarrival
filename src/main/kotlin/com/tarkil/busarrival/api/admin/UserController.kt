@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.webjars.NotFoundException
-import javax.websocket.server.PathParam
 
 
 @RestController
@@ -21,7 +20,7 @@ class UserController(val userService: UserService) {
     }
 
     @GetMapping("/{userId}")
-    fun getUser(@PathParam("userId") userId: Long): ResponseEntity<Any> {
+    fun getUser(@PathVariable("userId") userId: Long): ResponseEntity<Any> {
         val user: User?
         user = userService.getUserById(userId)
         if (user == null) {
