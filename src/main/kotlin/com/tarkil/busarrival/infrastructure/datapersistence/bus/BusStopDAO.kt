@@ -11,7 +11,7 @@ class BusStopDAO(
     @GeneratedValue(strategy = GenerationType.AUTO)
     val busStopId: Long = -1,
 
-    @Column(unique = true)
+    @Column()
     val name: String,
 
     @Column

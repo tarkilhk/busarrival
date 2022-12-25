@@ -36,7 +36,6 @@ class UserService(val userRepository: UserRepository, val busStopsRepository: Bu
                 userDAO.favouriteBusStopsDAOS.addAll(newFavouriteListOfBusStopDAOs)
                 try {
                     userRepository.save(userDAO)
-                    print(20 / 0)
                 } catch (e: Exception) {
                     logger.error("Cannot save favourites in DB for $userDAO")
                     throw Exception("Cannot save favourites in DB for $userDAO : ${e.message}")

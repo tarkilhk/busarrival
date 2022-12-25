@@ -11,10 +11,15 @@ class BusService(private val busStopsRepository: BusStopsRepository) {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun upsertNewBusStop(newBusStop: BusStop): Long {
-        if (busStopsRepository.existsByName(newBusStop.busStopName)) {
-            logger.info("Found busStop with name ${newBusStop.busStopName} to update")
+        if (busStopsRepository.existsByNameAndServiceNo(
+                name = newBusStop.busStopName,
+                serviceNo = newBusStop.serviceNo
+            )
+        ) {
+            logger.info("Found busStop with name ${newBusStop.busStopName} and service ${newBusStop.serviceNo} to update")
 
-            val toBeUpdatedBusStopDAO: BusStopDAO = busStopsRepository.getByName(newBusStop.busStopName)
+            val toBeUpdatedBusStopDAO: BusStopDAO =
+                busStopsRepository.getByNameAndServiceNo(newBusStop.busStopName, newBusStop.serviceNo)
 
             toBeUpdatedBusStopDAO.updateMembers(newBusStop)
             busStopsRepository.save(toBeUpdatedBusStopDAO)
