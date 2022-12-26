@@ -52,19 +52,23 @@ class UserController(val userService: UserService) {
         if (user == null) {
             return ResponseEntity("User with id $userId does not exist", HttpStatus.NOT_FOUND)
         } else {
-            return (ResponseEntity(user.favouriteBusStops, HttpStatus.OK))
+            return (ResponseEntity(user.getFavouriteBusStopsAsAPIResponse(), HttpStatus.OK))
         }
     }
 
     @PostMapping("favourite-stops")
-    fun setFavouriteStopsForUser(
+    fun addNewFavouriteStopForUser(
         @RequestParam(value = "userId") userId: Long,
-        @RequestParam(value = "stopIds") stopIds: MutableList<Long>
+        @RequestParam(value = "busStopId") busStopId: Long,
+        @RequestParam(value = "serviceNo") serviceNo: String
     ): ResponseEntity<String> {
-        var message: String = ""
         try {
-            userService.setFavouriteStopsFor(userId, stopIds)
-            return ResponseEntity("Successfully set ${stopIds.size} bus stops as favourites", HttpStatus.OK)
+//            userService.setFavouriteStopsFor(userId, stopIds)
+            userService.addNewFavouriteStopFor(userId, busStopId, serviceNo)
+            return ResponseEntity(
+                "Successfully added {busStopId=$busStopId,serviceNo=$serviceNo} in favourites of userId=$userId",
+                HttpStatus.OK
+            )
         } catch (e: NotFoundException) {
             return ResponseEntity("${e.message}", HttpStatus.NOT_FOUND)
         } catch (e: Exception) {

@@ -1,61 +1,59 @@
 package com.tarkil.busarrival.domain.user
 
-import com.tarkil.busarrival.domain.bus.BusStop
-import com.tarkil.busarrival.infrastructure.datapersistence.bus.BusStopDAO
-import com.tarkil.busarrival.infrastructure.datapersistence.bus.BusStopsRepository
+import com.tarkil.busarrival.domain.bus.BusService
+import com.tarkil.busarrival.infrastructure.datapersistence.bus.FavouriteBusStopDAO
 import com.tarkil.busarrival.infrastructure.datapersistence.users.UserDAO
 import com.tarkil.busarrival.infrastructure.datapersistence.users.UserRepository
 import org.slf4j.LoggerFactory
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.webjars.NotFoundException
 
 @Service
-class UserService(val userRepository: UserRepository, val busStopsRepository: BusStopsRepository) {
+class UserService(val userRepository: UserRepository, val busService: BusService) {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun setFavouriteStopsFor(userId: Long, stopIds: MutableList<Long>) {
-        logger.info("Want to set ${stopIds.size} favourite stops for user id $userId")
-        if (userRepository.existsById(userId)) {
-            val userDAO: UserDAO = this.getUserDAOById(userId)!!
-
-            val listOfNonExistingBusStopIds: MutableList<Long> = mutableListOf<Long>()
-            val newFavouriteListOfBusStopDAOs: MutableList<BusStopDAO> = mutableListOf<BusStopDAO>()
-
-            for (stopId: Long in stopIds) {
-                if (busStopsRepository.existsById(stopId)) {
-                    newFavouriteListOfBusStopDAOs.add(busStopsRepository.findByIdOrNull(stopId)!!)
-                } else {
-                    listOfNonExistingBusStopIds.add(stopId)
-                    logger.error("Bus Stop with id $stopId does not exist")
-                }
-            }
-
-            if (listOfNonExistingBusStopIds.isEmpty()) {
-                userDAO.favouriteBusStopsDAOS.clear()
-                userDAO.favouriteBusStopsDAOS.addAll(newFavouriteListOfBusStopDAOs)
-                try {
-                    userRepository.save(userDAO)
-                } catch (e: Exception) {
-                    logger.error("Cannot save favourites in DB for $userDAO")
-                    throw Exception("Cannot save favourites in DB for $userDAO : ${e.message}")
-                }
-            } else {
-                // There are unknown BusStopIds
-                throw NotFoundException(
-                    "Didn't change favourite stops for userId $userId, as some busStopIds were not known [${
-                        listOfNonExistingBusStopIds.joinToString(
-                            separator = ", "
-                        )
-                    }]"
-                )
-            }
-        } else {
-            // UserId does not exist
-            logger.error("User with id $userId does not exist")
-            throw NotFoundException("User with id $userId does not exist")
-        }
-    }
+//    fun setFavouriteStopsFor(userId: Long, stopIds: MutableList<UserController.BusStopIdAndServiceNo>) {
+//        logger.info("Want to set ${stopIds.size} favourite stops for user id $userId")
+//        if (userRepository.existsById(userId)) {
+//            val userDAO: UserDAO = this.getUserDAOById(userId)!!
+//
+//            val listOfNonExistingBusStopIds: MutableList<Long> = mutableListOf<Long>()
+//            val newFavouriteListOfBusStopDAOs: MutableList<FavouriteBusStopDAO> = mutableListOf<FavouriteBusStopDAO>()
+//
+//            for (stopIdAndServiceNo: UserController.BusStopIdAndServiceNo in stopIds) {
+//                if (busStopsRepository.existsById(stopIdAndServiceNo.busStopId)) {
+//                    newFavouriteListOfBusStopDAOs.add(FavouriteBusStopDAO(-1,userDAO,busStopsRepository.findByIdOrNull(stopIdAndServiceNo.busStopId)!!,stopIdAndServiceNo.serviceNo))
+//                } else {
+//                    listOfNonExistingBusStopIds.add(stopIdAndServiceNo.busStopId)
+//                    logger.error("Bus Stop with id ${stopIdAndServiceNo.busStopId} does not exist")
+//                }
+//            }
+//
+//            if (listOfNonExistingBusStopIds.isEmpty()) {
+//                userDAO.favouriteBusStopsDAOS.clear()
+//                userDAO.favouriteBusStopsDAOS.addAll(newFavouriteListOfBusStopDAOs)
+//                try {
+//                    userRepository.save(userDAO)
+//                } catch (e: Exception) {
+//                    logger.error("Cannot save favourites in DB for $userDAO")
+//                    throw Exception("Cannot save favourites in DB for $userDAO : ${e.message}")
+//                }
+//            } else {
+//                // There are unknown BusStopIds
+//                throw NotFoundException(
+//                    "Didn't change favourite stops for userId $userId, as some busStopIds were not known [${
+//                        listOfNonExistingBusStopIds.joinToString(
+//                            separator = ", "
+//                        )
+//                    }]"
+//                )
+//            }
+//        } else {
+//            // UserId does not exist
+//            logger.error("User with id $userId does not exist")
+//            throw NotFoundException("User with id $userId does not exist")
+//        }
+//    }
 
     fun getUserByName(name: String): User? {
         if (userRepository.existsByName(name)) {
@@ -64,16 +62,16 @@ class UserService(val userRepository: UserRepository, val busStopsRepository: Bu
         return null
     }
 
-    fun getFavouriteStops(userId: Long): MutableList<BusStop> {
-        logger.info("Want to retrieve favourite stops for userId $userId")
-        val myUser: User? = this.getUserById(userId)
-        if (myUser == null) {
-            logger.error("User with id $userId does not exist")
-            return mutableListOf<BusStop>()
-        } else {
-            return myUser.favouriteBusStops
-        }
-    }
+//    fun getFavouriteStops(userId: Long): MutableList<FavouriteBusStop> {
+//        logger.info("Want to retrieve favourite stops for userId $userId")
+//        val myUser: User? = this.getUserById(userId)
+//        if (myUser == null) {
+//            logger.error("User with id $userId does not exist")
+//            return mutableListOf<FavouriteBusStop>()
+//        } else {
+//            return myUser.favouriteBusStops
+//        }
+//    }
 
     fun getUserById(userId: Long): User? {
         if (userRepository.existsById(userId)) {
@@ -108,6 +106,39 @@ class UserService(val userRepository: UserRepository, val busStopsRepository: Bu
             val insertedUserId: Long = userRepository.save(newUser.toDAO()).getUserId()
             logger.info("Successfully added ${newUser.userName} in DB [id = ${insertedUserId}]")
             return insertedUserId
+        }
+    }
+
+    fun addNewFavouriteStopFor(userId: Long, busStopId: Long, serviceNo: String) {
+        logger.info("Want to add new favourite stop for user id $userId : {busStopId=$busStopId,serviceNo=$serviceNo}")
+        if (userRepository.existsById(userId)) {
+            val userDAO: UserDAO = this.getUserDAOById(userId)!!
+
+            if (busService.busStopExistsById(busStopId)) {
+                userDAO.addNewFavouriteBusStop(
+                    FavouriteBusStopDAO(
+                        userDAO = userDAO,
+                        busStopDAO = busService.getBusStopByBusStopId(busStopId).toDAO(),
+                        serviceNo = serviceNo
+                    )
+                )
+                logger.info("Found user, found busStop, about to save in DB; user now has ${userDAO.favouriteBusStopsDAOS.size} favourite bus stops")
+                try {
+                    userRepository.save(userDAO)
+                    logger.info("Successfully saved in DB")
+                } catch (e: Exception) {
+                    logger.error("Cannot save favourites in DB for $userDAO : ${e.message}")
+                    throw Exception("Cannot save favourites in DB for $userDAO : ${e.message}")
+                }
+            } else {
+                // There are unknown BusStopIds
+                logger.error("Bus Stop with id $busStopId does not exist")
+                throw NotFoundException("Didn't change favourite stops for userId $userId, as busStopId $busStopId")
+            }
+        } else {
+            // UserId does not exist
+            logger.error("User with id $userId does not exist")
+            throw NotFoundException("User with id $userId does not exist")
         }
     }
 }

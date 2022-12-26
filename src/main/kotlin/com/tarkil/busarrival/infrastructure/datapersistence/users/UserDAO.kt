@@ -1,6 +1,7 @@
 package com.tarkil.busarrival.infrastructure.datapersistence.users
 
-import com.tarkil.busarrival.infrastructure.datapersistence.bus.BusStopDAO
+import com.tarkil.busarrival.infrastructure.datapersistence.bus.FavouriteBusStopDAO
+import java.util.*
 import javax.persistence.*
 
 
@@ -14,13 +15,16 @@ class UserDAO(
     @Column(unique = true)
     val name: String,
 
-    @ManyToMany
-    @JoinTable(
-        name = "USERS_BUS_STOPS",
-        joinColumns = arrayOf(JoinColumn(name = "userId")),
-        inverseJoinColumns = arrayOf(JoinColumn(name = "busStopId"))
-    )
-    val favouriteBusStopsDAOS: MutableList<BusStopDAO> = mutableListOf()
+//    @ManyToMany
+//    @JoinTable(
+//        name = "USERS_BUS_STOPS",
+//        joinColumns = arrayOf(JoinColumn(name = "userId")),
+//        inverseJoinColumns = arrayOf(JoinColumn(name = "busStopId"))
+//    )
+//    val favouriteBusStopsDAOS: MutableList<BusStopDAO> = mutableListOf()
+
+    @OneToMany(mappedBy = "userDAO", cascade = arrayOf(CascadeType.ALL))
+    val favouriteBusStopsDAOS: MutableList<FavouriteBusStopDAO> = mutableListOf()
 ) {
     constructor() : this(-1, "")
 
@@ -30,8 +34,22 @@ class UserDAO(
         )
     }
 
+    override fun hashCode(): Int {
+        return (Objects.hash(this.userId, this.name))
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as UserDAO
+        return this.userId == that.userId
+    }
+
     fun getUserId(): Long {
         return this.userId
+    }
+
+    fun addNewFavouriteBusStop(newFavouriteBusStopDAO: FavouriteBusStopDAO) {
+        this.favouriteBusStopsDAOS.add(newFavouriteBusStopDAO)
     }
 
 //    fun getAllFavouriteStopsForGroup(name: String) : MutableList<FavouriteGroup>

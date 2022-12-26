@@ -1,7 +1,6 @@
 package com.tarkil.busarrival.infrastructure.datapersistence.bus
 
 import com.tarkil.busarrival.domain.bus.BusStop
-import com.tarkil.busarrival.infrastructure.datapersistence.users.UserDAO
 import javax.persistence.*
 
 @Entity
@@ -17,18 +16,18 @@ class BusStopDAO(
     @Column
     var busStopCode: String,
 
-    @Column
-    var serviceNo: String,
 
-    @ManyToMany(cascade = arrayOf(CascadeType.ALL), mappedBy = "favouriteBusStopsDAOS")
-    val userDAOs: MutableList<UserDAO> = mutableListOf<UserDAO>()
+//    @ManyToMany(cascade = arrayOf(CascadeType.ALL), mappedBy = "favouriteBusStopsDAOS")
+//    val userDAOs: MutableList<UserDAO> = mutableListOf<UserDAO>()
+
+//    @OneToMany(mappedBy = "busStopDAO")
+//    val favouriteBusStopsDAOS: MutableList<FavouriteBusStopDAO> = mutableListOf()
 ) {
     fun updateMembers(newBusStop: BusStop) {
         this.busStopCode = newBusStop.busStopCode
-        this.serviceNo = newBusStop.serviceNo
     }
 
     override fun toString(): String {
-        return "[$busStopId] $name - busStopCode = $busStopCode - serviceNo = $serviceNo"
+        return "[$busStopId] $name - busStopCode = $busStopCode"
     }
 }

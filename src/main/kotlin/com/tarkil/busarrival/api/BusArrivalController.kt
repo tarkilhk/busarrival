@@ -16,10 +16,10 @@ class BusArrivalController(val busArrivalService: BusArrivalService) {
 
     @GetMapping("/bus-stop-code")
     fun getBusArrivalForBusStopCode(
-        @RequestParam(value = "stopId") stopId: String
+        @RequestParam(value = "busStopCode") busStopCode: String
     ): ResponseEntity<BusArrival> {
         try {
-            val busArrival = busArrivalService.getBusArrivalForBusStopCode(stopId)
+            val busArrival = busArrivalService.getBusArrivalForBusStopCode(busStopCode)
             return ResponseEntity.ok(busArrival)
         } catch (e: NotFound) {
             return ResponseEntity(BusArrival(message = "" + e.message, isError = true), HttpStatus.NOT_FOUND)

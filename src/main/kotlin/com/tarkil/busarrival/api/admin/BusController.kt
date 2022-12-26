@@ -22,8 +22,7 @@ class BusController(val busService: BusService) {
             val newBusStopId = busService.upsertNewBusStop(
                 BusStop(
                     busStopCode = busStopCode,
-                    busStopName = name,
-                    serviceNo = serviceNo
+                    busStopName = name
                 )
             )
             response = ResponseEntity("Done : id $newBusStopId", HttpStatus.OK)
