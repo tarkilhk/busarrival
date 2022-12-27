@@ -1,6 +1,5 @@
 package com.tarkil.busarrival.api.admin
 
-import com.tarkil.busarrival.domain.bus.BusStop
 import com.tarkil.busarrival.domain.user.User
 import com.tarkil.busarrival.domain.user.UserService
 import feign.FeignException
@@ -47,12 +46,30 @@ class UserController(val userService: UserService) {
 
     @GetMapping("favourite-stops")
     fun getFavouriteStopsForUser(@RequestParam(value = "userId") userId: Long): ResponseEntity<Any> {
-        val busStops: MutableList<BusStop>
         val user: User? = userService.getUserById(userId)
         if (user == null) {
             return ResponseEntity("User with id $userId does not exist", HttpStatus.NOT_FOUND)
         } else {
             return (ResponseEntity(user.getFavouriteBusStopsAsAPIResponse(), HttpStatus.OK))
+        }
+    }
+
+    @DeleteMapping("favourite-stops")
+    fun removeFavouriteStopForUser(
+        @RequestParam(value = "userId") userId: Long,
+        @RequestParam(value = "busStopId") busStopId: Long,
+        @RequestParam(value = "serviceNo") serviceNo: String
+    ): ResponseEntity<String> {
+        try {
+            userService.removeFavouriteStopFor(userId, busStopId, serviceNo)
+            return ResponseEntity(
+                "Successfully removed {busStopId=$busStopId,serviceNo=$serviceNo} from favourites of userId=$userId",
+                HttpStatus.OK
+            )
+        } catch (e: NotFoundException) {
+            return ResponseEntity("${e.message}", HttpStatus.NOT_FOUND)
+        } catch (e: Exception) {
+            return ResponseEntity("Cannot remove favourite stop : ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 

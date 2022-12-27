@@ -33,13 +33,13 @@ class BusArrivalService(val ltaoDataServiceBusArrivalV2: LTAODataServiceBusArriv
         }
     }
 
-    fun getBusArrivalForServiceNoAndBusStopCode(serviceNo: String, busStopCode: String): BusArrival {
+    fun getBusArrivalForBusStopCodeAndServiceNos(serviceNos: MutableList<String>, busStopCode: String): BusArrival {
         val busArrival = this.getBusArrivalForBusStopCode(busStopCode)
-        val filteredService = busArrival.Services.filter { it.serviceNo == serviceNo }
-        if (filteredService.size == 0) {
+        val filteredServices = busArrival.Services.filter { it.serviceNo in serviceNos }.toMutableList()
+        if (filteredServices.size == 0) {
             return BusArrival(message = "No bus", isError = false)
         } else {
-            busArrival.mutateAndRemoveAllServicesWhichAreNotForBusRoute(busRoute = serviceNo)
+            busArrival.Services = filteredServices
             return busArrival
         }
     }

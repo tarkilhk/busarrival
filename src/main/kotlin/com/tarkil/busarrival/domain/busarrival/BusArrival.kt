@@ -6,10 +6,6 @@ import com.tarkil.busarrival.infrastructure.ltaodataservicebusarrival.ServiceDTO
 import java.time.ZonedDateTime
 
 class BusArrival() {
-    fun mutateAndRemoveAllServicesWhichAreNotForBusRoute(busRoute: String) {
-        this.Services.removeIf { !it.serviceNo.equals(busRoute) }
-    }
-
     var BusStopCode: String = "0"
     var Services: MutableList<Service> = mutableListOf<Service>()
     var message: String = ""

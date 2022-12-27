@@ -141,4 +141,33 @@ class UserService(val userRepository: UserRepository, val busService: BusService
             throw NotFoundException("User with id $userId does not exist")
         }
     }
+
+    fun removeFavouriteStopFor(userId: Long, busStopId: Long, serviceNo: String) {
+        logger.info("Want to remove favourite stop for user id $userId : {busStopId=$busStopId,serviceNo=$serviceNo}")
+        if (userRepository.existsById(userId)) {
+            val userDAO: UserDAO = this.getUserDAOById(userId)!!
+            val favouriteBusStopDAO: FavouriteBusStopDAO? =
+                userDAO.getFavouriteBusStopIfExists(busStopId = busStopId, serviceNo = serviceNo)
+
+            if (favouriteBusStopDAO != null) {
+                userDAO.removeFavouriteBusStop(favouriteBusStopDAO)
+                logger.info("Found user, found existing macthing favouriteBusStop, about to delete record from DB; user now has ${userDAO.favouriteBusStopsDAOS.size} favourite bus stops")
+                try {
+                    userRepository.save(userDAO)
+                    logger.info("Successfully saved in DB")
+                } catch (e: Exception) {
+                    logger.error("Cannot save favourites in DB for $userDAO : ${e.message}")
+                    throw Exception("Cannot save favourites in DB for $userDAO : ${e.message}")
+                }
+            } else {
+                // There are unknown BusStopIds
+                logger.error("User id $userId doesn't have favourite with busStopId=$busStopId,serviceNo=$serviceNo, didn't remove")
+                throw NotFoundException("User id $userId doesn't have favourite with busStopId=$busStopId,serviceNo=$serviceNo, didn't remove")
+            }
+        } else {
+            // UserId does not exist
+            logger.error("User with id $userId does not exist")
+            throw NotFoundException("User with id $userId does not exist")
+        }
+    }
 }

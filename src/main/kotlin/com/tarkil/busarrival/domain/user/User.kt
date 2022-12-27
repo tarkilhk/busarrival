@@ -43,7 +43,7 @@ data class User(
         }
 
         val response = mutableListOf<FavouriteBusStopResponse>()
-        for ((favouriteBusStop: BusStop, serviceNos: MutableList<String>) in stopsWithListOfServiceNos) {
+        stopsWithListOfServiceNos.forEach { (favouriteBusStop: BusStop, serviceNos: MutableList<String>) ->
             response.add(FavouriteBusStopResponse(busStop = favouriteBusStop, serviceNos = serviceNos))
         }
         return response

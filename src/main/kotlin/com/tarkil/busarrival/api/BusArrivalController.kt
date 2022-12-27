@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@RestController()
+@RestController
 @RequestMapping("/bus-arrival")
 class BusArrivalController(val busArrivalService: BusArrivalService) {
 
@@ -18,37 +18,34 @@ class BusArrivalController(val busArrivalService: BusArrivalService) {
     fun getBusArrivalForBusStopCode(
         @RequestParam(value = "busStopCode") busStopCode: String
     ): ResponseEntity<BusArrival> {
-        try {
+        return try {
             val busArrival = busArrivalService.getBusArrivalForBusStopCode(busStopCode)
-            return ResponseEntity.ok(busArrival)
+            ResponseEntity.ok(busArrival)
         } catch (e: NotFound) {
-            return ResponseEntity(BusArrival(message = "" + e.message, isError = true), HttpStatus.NOT_FOUND)
+            ResponseEntity(BusArrival(message = "" + e.message, isError = true), HttpStatus.NOT_FOUND)
         } catch (e: Exception) {
-            return ResponseEntity(
-                BusArrival(message = "" + e.message, isError = true),
-                HttpStatus.INTERNAL_SERVER_ERROR
+            ResponseEntity(
+                BusArrival(message = "" + e.message, isError = true), HttpStatus.INTERNAL_SERVER_ERROR
             )
         }
     }
 
-    @GetMapping("/bus-route-and-bus-stop-code")
-    fun getBusArrivalForBusRouteAndBusStopCode(
-        @RequestParam(value = "serviceNo") serviceNo: String,
-        @RequestParam(value = "busStopCode") busStopCode: String
+    @GetMapping("/bus-stop-code-and-service-nos")
+    fun getBusArrivalForBusStopCodeAndServiceNos(
+        @RequestParam(value = "busStopCode") busStopCode: String,
+        @RequestParam(value = "serviceNos") serviceNos: MutableList<String>
     ): ResponseEntity<BusArrival> {
-        try {
-            val busArrival =
-                busArrivalService.getBusArrivalForServiceNoAndBusStopCode(
-                    serviceNo = serviceNo,
-                    busStopCode = busStopCode
-                )
-            return ResponseEntity.ok(busArrival)
+        return try {
+            val busArrival = busArrivalService.getBusArrivalForBusStopCodeAndServiceNos(
+                busStopCode = busStopCode,
+                serviceNos = serviceNos
+            )
+            ResponseEntity.ok(busArrival)
         } catch (e: NotFound) {
-            return ResponseEntity(BusArrival(message = "" + e.message, isError = true), HttpStatus.NOT_FOUND)
+            ResponseEntity(BusArrival(message = "" + e.message, isError = true), HttpStatus.NOT_FOUND)
         } catch (e: Exception) {
-            return ResponseEntity(
-                BusArrival(message = "" + e.message, isError = true),
-                HttpStatus.INTERNAL_SERVER_ERROR
+            ResponseEntity(
+                BusArrival(message = "" + e.message, isError = true), HttpStatus.INTERNAL_SERVER_ERROR
             )
         }
     }

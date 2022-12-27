@@ -23,7 +23,7 @@ class UserDAO(
 //    )
 //    val favouriteBusStopsDAOS: MutableList<BusStopDAO> = mutableListOf()
 
-    @OneToMany(mappedBy = "userDAO", cascade = arrayOf(CascadeType.ALL))
+    @OneToMany(mappedBy = "userDAO", cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
     val favouriteBusStopsDAOS: MutableList<FavouriteBusStopDAO> = mutableListOf()
 ) {
     constructor() : this(-1, "")
@@ -50,6 +50,19 @@ class UserDAO(
 
     fun addNewFavouriteBusStop(newFavouriteBusStopDAO: FavouriteBusStopDAO) {
         this.favouriteBusStopsDAOS.add(newFavouriteBusStopDAO)
+    }
+
+    fun removeFavouriteBusStop(favouriteBusStopDAOToRemove: FavouriteBusStopDAO) {
+        this.favouriteBusStopsDAOS.remove(favouriteBusStopDAOToRemove)
+    }
+
+    fun getFavouriteBusStopIfExists(busStopId: Long, serviceNo: String): FavouriteBusStopDAO? {
+        for (favouriteBusStopDAO: FavouriteBusStopDAO in this.favouriteBusStopsDAOS) {
+            if (favouriteBusStopDAO.busStopDAO.busStopId == busStopId && favouriteBusStopDAO.serviceNo == serviceNo) {
+                return favouriteBusStopDAO
+            }
+        }
+        return null
     }
 
 //    fun getAllFavouriteStopsForGroup(name: String) : MutableList<FavouriteGroup>
